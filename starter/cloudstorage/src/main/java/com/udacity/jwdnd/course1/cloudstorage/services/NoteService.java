@@ -48,4 +48,8 @@ public class NoteService {
         }
         return -1;
     }
+
+    public int deleteNote(Integer noteId) {
+        return noteMapper.deleteNote(noteId);
+    }
 }

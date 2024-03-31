@@ -5,11 +5,8 @@ import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Objects;
 
 @Controller
 public class NoteController {
@@ -40,12 +37,14 @@ public class NoteController {
             errorMessage = "Some thing wrong, please check it again";
         }
 
-        model.addAttribute("errorMessage", Objects.requireNonNullElse(errorMessage, false));
+        model.addAttribute("errorMessage", errorMessage);
         return "redirect:/home";
     }
 
 
-    public String deleteNote() {
-        return "";
+    @GetMapping("/notes/delete/{noteId}")
+    public String deleteNote(@PathVariable(name = "noteId") Integer noteId) {
+        noteService.deleteNote(noteId);
+        return "redirect:/home";
     }
 }
