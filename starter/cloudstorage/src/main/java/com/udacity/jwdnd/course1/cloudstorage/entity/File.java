@@ -14,6 +14,6 @@ public class File {
     private String fileName;
     private String contentType;
     private String fileSize;
-    private User user;
+    private Integer userId;
     private byte[] fileData;
 }

@@ -44,6 +44,7 @@ public class NoteController {
 
     @GetMapping("/notes/delete/{noteId}")
     public String deleteNote(@PathVariable(name = "noteId") Integer noteId) {
+        // Missing confirm delete note
         noteService.deleteNote(noteId);
         return "redirect:/home";
     }
