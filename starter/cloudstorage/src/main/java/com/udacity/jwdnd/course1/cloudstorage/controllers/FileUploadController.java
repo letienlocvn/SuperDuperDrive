@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 
@@ -27,12 +28,24 @@ public class FileUploadController {
     }
 
     @PostMapping("/file")
-    public String handleUploadFile(Authentication authentication, MultipartFile fileUpload) throws IOException {
+    public String handleUploadFile(Authentication authentication, MultipartFile fileUpload,
+                                   RedirectAttributes redirectAttributes) throws IOException {
+        String message;
+        int rowEffected;
         if (fileUpload.isEmpty()) {
-            // Need handle exception here;
+            message = "Please select a file to upload.";
+            rowEffected = -1;
+        } else {
+            rowEffected = fileUploadService.insertFile(fileUpload, authentication.getName());
+            if (rowEffected > 0) {
+                message = "File uploaded successfully.";
+            } else {
+                message = "An error occurred while uploading the file. Please try again.";
+            }
         }
-        fileUploadService.insertFile(fileUpload, authentication.getName());
-        return "redirect:/home";
+
+        redirectAttributes.addFlashAttribute((rowEffected > 0) ? "successMessage" : "errorMessage", message);
+        return "redirect:/result";
     }
 
     @GetMapping("/files/download/{fileId}")
@@ -46,9 +59,17 @@ public class FileUploadController {
     }
 
     @GetMapping("files/delete")
-    public String deleteFile(@RequestParam("fileId") Integer fileId) {
-        fileUploadService.deleteFile(fileId);
-        return "redirect:/home";
+    public String deleteFile(@RequestParam("fileId") Integer fileId, RedirectAttributes redirectAttributes) {
+        int rowEffected = fileUploadService.deleteFile(fileId);
+        String message;
+        if (rowEffected > 0) {
+            message = "Delete file successfully.";
+        } else {
+            message = "An error occurred while deleting the file. Please try again.";
+        }
+
+        redirectAttributes.addFlashAttribute((rowEffected > 0) ? "successMessage" : "errorMessage", message);
+        return "redirect:/result";
     }
 
 }

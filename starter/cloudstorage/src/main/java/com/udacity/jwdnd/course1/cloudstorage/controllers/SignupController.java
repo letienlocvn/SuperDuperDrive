@@ -28,7 +28,7 @@ public class SignupController {
         String errorMessage = null;
 
         if (!userService.isUsernameAvailable(user.getUsername())) {
-            errorMessage = "Username already exists";
+            errorMessage = "Username already exists. Please use another username.";
         }
 
         if (errorMessage == null) {

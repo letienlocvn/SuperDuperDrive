@@ -2,9 +2,7 @@ package com.udacity.jwdnd.course1.cloudstorage.services;
 
 import com.udacity.jwdnd.course1.cloudstorage.entity.User;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.UserMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -42,7 +40,6 @@ public class UserService {
     public boolean isUsernameAvailable(String username) {
         return userMapper.getUser(username) == null;
     }
-
 
     public User getUser(String username) {
         return userMapper.getUser(username);

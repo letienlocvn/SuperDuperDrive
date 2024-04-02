@@ -4,8 +4,6 @@ import com.udacity.jwdnd.course1.cloudstorage.entity.Note;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.NoteMapper;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.UserMapper;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -29,14 +27,14 @@ public class NoteService {
         return -1;
     }
 
-    public List<Note> getAllNotes(String username) {
+    public List<Note> getAllNotes(String username) throws Exception {
         Integer userId;
         if (userMapper.getUser(username) != null) {
             userId = userMapper.getUser(username).getUserId();
             return noteMapper.getNotesByUserId(userId);
+        } else {
+            throw new Exception("User not exited, please try again");
         }
-
-        return Collections.emptyList();
     }
 
     public int updateNote(String username, Note note) {

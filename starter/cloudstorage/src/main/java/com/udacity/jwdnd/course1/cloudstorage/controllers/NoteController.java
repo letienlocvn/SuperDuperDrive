@@ -4,9 +4,8 @@ import com.udacity.jwdnd.course1.cloudstorage.entity.Note;
 import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class NoteController {
@@ -20,32 +19,43 @@ public class NoteController {
     @PostMapping("/note")
     public String uploadNoteOrEditNote(Note note,
                                        Authentication authentication,
-                                       Model model) {
-        String errorMessage;
+                                       RedirectAttributes redirectAttributes) {
         String username = authentication.getName();
         int rowEffected = 0;
+        String message = null;
         if (note.getNoteId() == null) {
-            System.out.println("Call insert Note");
             rowEffected = noteService.insertNote(username, note);
-            errorMessage = "Add new note successfully";
+            if (rowEffected > 0) {
+                message = "New note added successfully.";
+            } else {
+                message = "Failed to add new note.";
+            }
         } else {
-            System.out.println("Call update Note");
             rowEffected = noteService.updateNote(username, note);
-            errorMessage = "Edit note successfully";
-        }
-        if (rowEffected < 0) {
-            errorMessage = "Some thing wrong, please check it again";
+            if (rowEffected > 0) {
+                message = "Note edited successfully.";
+            } else {
+                message = "Failed to edit note.";
+            }
         }
 
-        model.addAttribute("errorMessage", errorMessage);
-        return "redirect:/home";
+        redirectAttributes.addFlashAttribute((rowEffected > 0) ? "successMessage" : "errorMessage", message);
+
+        return "redirect:/result";
     }
 
 
     @GetMapping("/notes/delete/{noteId}")
-    public String deleteNote(@PathVariable(name = "noteId") Integer noteId) {
-        // Missing confirm delete note
-        noteService.deleteNote(noteId);
-        return "redirect:/home";
+    public String deleteNote(@PathVariable(name = "noteId") Integer noteId,
+                             RedirectAttributes redirectAttributes) {
+        int rowEffected = noteService.deleteNote(noteId);
+        String message;
+        if (rowEffected > 0) {
+            message = "Note deleted successfully.";
+        } else {
+            message = "An error occurred while deleting the note. Please try again.";
+        }
+        redirectAttributes.addFlashAttribute((rowEffected > 0) ? "successMessage" : "errorMessage", message);
+        return "redirect:/result";
     }
 }

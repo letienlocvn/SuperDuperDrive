@@ -6,8 +6,6 @@ import com.udacity.jwdnd.course1.cloudstorage.mapper.FileUploadMapper;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +46,7 @@ public class FileUploadService {
         return fileUploadMapper.findFileById(fileId);
     }
 
-    public void deleteFile(Integer fileId) {
-        fileUploadMapper.deleteFile(fileId);
+    public int deleteFile(Integer fileId) {
+        return fileUploadMapper.deleteFile(fileId);
     }
 }

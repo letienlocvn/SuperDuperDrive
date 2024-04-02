@@ -29,7 +29,7 @@
         <div class="tab-content" id="nav-tabContent">
             <!-- UPLOAD FILE -->
             <div class="tab-pane fade show active" id="nav-files" role="tabpanel" aria-labelledby="nav-files-tab">
-            <form th:action="@{/file}" action="#" enctype="multipart/form-data" method="POST">
+                <form th:action="@{/file}" action="#" enctype="multipart/form-data" method="POST">
                     <div class="container">
                         <div class="row" style="margin: 1em;">
                             <div class="col-sm-2">
@@ -56,7 +56,7 @@
                         <tr th:each="file : ${files}">
                             <td>
                                 <a th:href="@{'/files/download/'+${file.fileId}}" class="btn btn-success">View</a>
-                                <a th:href="@{/files/delete(fileId=${file.fileId})}"  class="btn btn-danger">Delete</a>
+                                <a th:href="@{/files/delete(fileId=${file.fileId})}" class="btn btn-danger">Delete</a>
                             </td>
                             <th scope="row" th:text="${file.fileName}"></th>
                         </tr>
@@ -72,6 +72,7 @@
                     + Add a New Note
                 </button>
                 <div class="table-responsive">
+                    <h3 th:if="${notes.isEmpty()}">You don't have any note here</h3>
                     <table class="table table-striped" id="userTable">
                         <thead>
                         <tr>
@@ -129,12 +130,6 @@
                                     </div>
                                     <button id="noteSubmit" type="submit" class="d-none"></button>
                                 </form>
-
-
-                                <div th:if="${errorMessage}" class="alert alert-success mt-3 d-none" role="alert"
-                                     id="errorMessage">
-                                    Note saved successfully!
-                                </div>
                             </div>
 
                             <div class="modal-footer">
@@ -149,6 +144,8 @@
 
 
             </div>
+
+            <!-- DISPLAY CREDENTIALS -->
             <div class="tab-pane fade" id="nav-credentials" role="tabpanel" aria-labelledby="nav-credentials-tab">
                 <button style="margin: 0.25em;" type="button" class="btn btn-info float-right"
                         onclick="showCredentialModal()">
@@ -156,7 +153,8 @@
                 </button>
 
                 <div class="table-responsive">
-                    <table class="table table-striped" th:object="${credentials}" id="credentialTable">
+                    <h3 th:if="${credentialList.isEmpty()}">You don't have any credential here</h3>
+                    <table class="table table-striped" id="credentialTable">
                         <thead>
                         <tr>
                             <th style="width: 20%" scope="col"></th>
@@ -166,14 +164,27 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
+                        <tr th:each="credential: ${credentialList}">
                             <td>
-                                <button type="button" class="btn btn-success">Edit</button>
-                                <a class="btn btn-danger">Delete</a>
+                                <button
+                                        th:data-credentialId="${credential.credentialId}"
+                                        th:data-url="${credential.url}"
+                                        th:data-username="${credential.username}"
+                                        th:data-password="${credential.password}"
+                                        onclick="showCredentialModal('updateCredential',
+                                        this.getAttribute('data-credentialId'),
+                                        this.getAttribute('data-url'),
+                                        this.getAttribute('data-username'),
+                                        this.getAttribute('data-password'))"
+                                        type="button"
+                                        class="btn btn-success">Edit
+                                </button>
+                                <a th:href="@{/credentials/delete/{credentialId}(credentialId=${credential.credentialId})}"
+                                   class="btn btn-danger">Delete</a>
                             </td>
-                            <th scope="row">Example Credential URL</th>
-                            <td>Example Credential Username</td>
-                            <td>Example Credential Password</td>
+                            <th th:text="${credential.url}" scope="row"></th>
+                            <td th:text="${credential.username}"></td>
+                            <td th:text="${credential.password}"></td>
                         </tr>
                         </tbody>
                     </table>
@@ -190,7 +201,7 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <form action="#" method="POST">
+                                <form th:action="@{/credential}" action="#" method="POST">
                                     <input type="hidden" name="credentialId" id="credential-id">
                                     <div class="form-group">
                                         <label for="credential-url" class="col-form-label">URL</label>
@@ -204,6 +215,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="credential-password" class="col-form-label">Password</label>
+
                                         <input type="text" name="password" class="form-control" id="credential-password"
                                                maxlength="30" required>
                                     </div>
@@ -246,13 +258,28 @@
     }
 
     // For opening the credentials modal
-    function showCredentialModal(credentialId, url, username, password) {
+    function showCredentialModal(formAction, credentialId, url, username, password) {
+        $('#credential-form').attr('action', formAction ? formAction : 'saveCredential');
         $('#credential-id').val(credentialId ? credentialId : '');
         $('#credential-url').val(url ? url : '');
         $('#credential-username').val(username ? username : '');
         $('#credential-password').val(password ? password : '');
         $('#credentialModal').modal('show');
     }
+
+    function showConfirmDeleteModal(itemId) {
+        var modal = $('#deleteConfirmModal');
+        modal.find('.modal-body').text('Are you sure you want to delete this item?');
+        modal.find('.modal-footer #delete-confirm').data('id', itemId);
+        modal.modal('show');
+    }
+
+    $(document).on("click", "#delete-confirm", function () {
+        var itemId = $(this).data('id');
+        // Perform delete action here using AJAX or form submission
+        // Once deleted, close the confirmation modal
+        $('#deleteConfirmModal').modal('hide');
+    });
 </script>
 </body>
 </html>
