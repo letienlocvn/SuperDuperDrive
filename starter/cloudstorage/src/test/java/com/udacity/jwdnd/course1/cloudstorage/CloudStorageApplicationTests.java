@@ -23,6 +23,7 @@ class CloudStorageApplicationTests {
     static final String LAST_NAME = "Le";
     static final String USERNAME = "Loclt7";
     static final String PASSWORD = "password";
+    static final String CREDENTIAL_URL = "https://www.example.com/credentials/123456";
 
     @LocalServerPort
     private int port;
@@ -149,10 +150,50 @@ class CloudStorageApplicationTests {
 
         WebElement credentialTab = driver.findElement(By.id("nav-credentials-tab"));
         credentialTab.click();
+        WebDriverWait wait = new WebDriverWait(driver, 5);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-button")));
 
-        driver.findElement(By.id("nav-credentials-tab"));
+        WebElement credentialButton = driver.findElement(By.id("credential-button"));
+        credentialButton.click();
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-url")));
 
 
+        WebElement inputCredentialUrl = driver.findElement(By.id("credential-url"));
+        inputCredentialUrl.sendKeys(CREDENTIAL_URL);
+
+        WebElement inputCredentialUsername = driver.findElement(By.id("credential-username"));
+        inputCredentialUsername.sendKeys(USERNAME);
+
+        WebElement inputCredentialPassword = driver.findElement(By.id("credential-password"));
+        inputCredentialPassword.sendKeys(PASSWORD);
+
+        WebElement inputCredentialSubmit = driver.findElement(By.id("credentialSubmit"));
+        inputCredentialSubmit.submit();
+
+
+        // Click to home page.
+        WebElement linkClickHomePage = driver.findElement(By.id("link-home-page"));
+        linkClickHomePage.click();
+
+        WebElement credentialTabSecond = driver.findElement(By.id("nav-credentials-tab"));
+        credentialTabSecond.click();
+
+        verifyCredentialInList();
+    }
+
+    private void verifyCredentialInList() {
+        WebElement credentialTable = driver.findElement(By.id("credentialTable"));
+        List<WebElement> credentials = credentialTable.findElements(By.tagName("th"));
+
+        boolean isCredentialCreated = false;
+        for (WebElement element : credentials) {
+            if (element.getAttribute("innerHTML").equals(CREDENTIAL_URL)) {
+                isCredentialCreated = true;
+                break;
+            }
+        }
+        Assertions.assertTrue(isCredentialCreated);
     }
 
     private void createNoteAndVerify() {
