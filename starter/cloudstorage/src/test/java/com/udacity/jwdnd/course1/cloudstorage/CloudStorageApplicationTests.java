@@ -152,34 +152,6 @@ class CloudStorageApplicationTests {
         verifyCredentialInList(CREDENTIAL_URL);
     }
 
-    private void switchToCredentialsTab() {
-        WebElement credentialTabSecond = driver.findElement(By.id("nav-credentials-tab"));
-        credentialTabSecond.click();
-    }
-
-    private void createNewCredential() {
-        switchToCredentialsTab();
-        WebDriverWait wait = new WebDriverWait(driver, 5);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-button")));
-
-        WebElement credentialButton = driver.findElement(By.id("credential-button"));
-        credentialButton.click();
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-url")));
-
-        WebElement inputCredentialUrl = driver.findElement(By.id("credential-url"));
-        inputCredentialUrl.sendKeys(CREDENTIAL_URL);
-
-        WebElement inputCredentialUsername = driver.findElement(By.id("credential-username"));
-        inputCredentialUsername.sendKeys(USERNAME);
-
-        WebElement inputCredentialPassword = driver.findElement(By.id("credential-password"));
-        inputCredentialPassword.sendKeys(PASSWORD);
-
-        WebElement inputCredentialSubmit = driver.findElement(By.id("credentialSubmit"));
-        inputCredentialSubmit.submit();
-    }
-
     @Test
     void testEditingCredential() {
         doMockSignUp(FIRST_NAME, LAST_NAME, USERNAME, PASSWORD);
@@ -226,11 +198,6 @@ class CloudStorageApplicationTests {
 
     }
 
-    private void clickToHomePage() {
-        WebElement linkClickHomePage = driver.findElement(By.id("link-home-page"));
-        linkClickHomePage.click();
-    }
-
     @Test
     void testDeleteCredential() {
         doMockSignUp(FIRST_NAME, LAST_NAME, USERNAME, PASSWORD);
@@ -270,6 +237,40 @@ class CloudStorageApplicationTests {
     }
 
     // Helper methods
+    private void switchToCredentialsTab() {
+        WebElement credentialTabSecond = driver.findElement(By.id("nav-credentials-tab"));
+        credentialTabSecond.click();
+    }
+
+    private void createNewCredential() {
+        switchToCredentialsTab();
+        WebDriverWait wait = new WebDriverWait(driver, 5);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-button")));
+
+        WebElement credentialButton = driver.findElement(By.id("credential-button"));
+        credentialButton.click();
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-url")));
+
+        WebElement inputCredentialUrl = driver.findElement(By.id("credential-url"));
+        inputCredentialUrl.sendKeys(CREDENTIAL_URL);
+
+        WebElement inputCredentialUsername = driver.findElement(By.id("credential-username"));
+        inputCredentialUsername.sendKeys(USERNAME);
+
+        WebElement inputCredentialPassword = driver.findElement(By.id("credential-password"));
+        inputCredentialPassword.sendKeys(PASSWORD);
+
+        WebElement inputCredentialSubmit = driver.findElement(By.id("credentialSubmit"));
+        inputCredentialSubmit.submit();
+    }
+
+    private void clickToHomePage() {
+        WebElement linkClickHomePage = driver.findElement(By.id("link-home-page"));
+        linkClickHomePage.click();
+    }
+
+
     private void verifyCredentialInList(String credentialUrl) {
         WebElement credentialTable = driver.findElement(By.id("credentialTable"));
         List<WebElement> credentials = credentialTable.findElements(By.tagName("th"));
@@ -464,8 +465,8 @@ class CloudStorageApplicationTests {
         WebElement buttonSignUp = driver.findElement(By.id("buttonSignUp"));
         buttonSignUp.click();
 
-		/* Check that the sign up was successful. 
-		// You may have to modify the element "success-msg" and the sign-up 
+		/* Check that the sign up was successful.
+		// You may have to modify the element "success-msg" and the sign-up
 		// success message below depening on the rest of your code.
 		*/
         // Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
