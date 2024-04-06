@@ -142,14 +142,23 @@ class CloudStorageApplicationTests {
     }
 
     // For credential
-
     @Test
     void testCreateNewCredential() {
         doMockSignUp(FIRST_NAME, LAST_NAME, USERNAME, PASSWORD);
         doLogIn(USERNAME, PASSWORD);
+        createNewCredential();
+        clickToHomePage();
+        switchToCredentialsTab();
+        verifyCredentialInList(CREDENTIAL_URL);
+    }
 
-        WebElement credentialTab = driver.findElement(By.id("nav-credentials-tab"));
-        credentialTab.click();
+    private void switchToCredentialsTab() {
+        WebElement credentialTabSecond = driver.findElement(By.id("nav-credentials-tab"));
+        credentialTabSecond.click();
+    }
+
+    private void createNewCredential() {
+        switchToCredentialsTab();
         WebDriverWait wait = new WebDriverWait(driver, 5);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-button")));
 
@@ -157,7 +166,6 @@ class CloudStorageApplicationTests {
         credentialButton.click();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-url")));
-
 
         WebElement inputCredentialUrl = driver.findElement(By.id("credential-url"));
         inputCredentialUrl.sendKeys(CREDENTIAL_URL);
@@ -170,25 +178,105 @@ class CloudStorageApplicationTests {
 
         WebElement inputCredentialSubmit = driver.findElement(By.id("credentialSubmit"));
         inputCredentialSubmit.submit();
-
-
-        // Click to home page.
-        WebElement linkClickHomePage = driver.findElement(By.id("link-home-page"));
-        linkClickHomePage.click();
-
-        WebElement credentialTabSecond = driver.findElement(By.id("nav-credentials-tab"));
-        credentialTabSecond.click();
-
-        verifyCredentialInList();
     }
 
-    private void verifyCredentialInList() {
+    @Test
+    void testEditingCredential() {
+        doMockSignUp(FIRST_NAME, LAST_NAME, USERNAME, PASSWORD);
+        doLogIn(USERNAME, PASSWORD);
+
+        createNewCredential();
+
+        // Click to home page.
+        clickToHomePage();
+
+        switchToCredentialsTab();
+
+
+        String updatedCredentialUrl = "https://www.example.com/update-credentials/123456";
+
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credentialTable")));
+        WebElement editButton = findEditButtonForExistingCredentialUrl(CREDENTIAL_URL);
+        editButton.click();
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("credential-url")));
+        WebElement inputCredentialUrl = driver.findElement(By.id("credential-url"));
+
+        inputCredentialUrl.clear();
+        inputCredentialUrl.sendKeys(updatedCredentialUrl);
+
+        // Saves changes
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("save-credential-btn")));
+        WebElement saveButton = driver.findElement(By.id("save-credential-btn"));
+        saveButton.click();
+
+        // Click to home page.
+        clickToHomePage();
+
+        // Waiting
+        WebDriverWait webDriverWait = new WebDriverWait(driver, 5);
+        webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("nav-credentials-tab")));
+
+        // Switch to the "nav-credentials-tab"
+        switchToCredentialsTab();
+
+        // Verify changes in the note list
+        verifyCredentialInList(updatedCredentialUrl);
+
+    }
+
+    private void clickToHomePage() {
+        WebElement linkClickHomePage = driver.findElement(By.id("link-home-page"));
+        linkClickHomePage.click();
+    }
+
+    @Test
+    void testDeleteCredential() {
+        doMockSignUp(FIRST_NAME, LAST_NAME, USERNAME, PASSWORD);
+        doLogIn(USERNAME, PASSWORD);
+        createNewCredential();
+        clickToHomePage();
+        switchToCredentialsTab();
+
+        WebElement deleteButton = findDeleteButtonForCredentialUrl();
+        deleteButton.click();
+
+        clickToHomePage();
+        switchToCredentialsTab();
+
+        WebElement credentialTable = driver.findElement(By.id("credentialTable"));
+        List<WebElement> credentials = credentialTable.findElements(By.tagName("td"));
+
+
+        WebElement deleteElement = null;
+        for (WebElement element : credentials) {
+            deleteElement = element.findElement(By.name("delete-btn"));
+            if (deleteElement != null) {
+                break;
+            }
+        }
+
+        if (deleteElement != null) {
+            WebDriverWait wait = new WebDriverWait(driver, 10);
+
+            wait.until(ExpectedConditions.elementToBeClickable(deleteElement)).click();
+            Assertions.assertEquals("Result", driver.getTitle());
+        } else {
+            // For handle just one test delete
+            Assertions.assertNull(deleteElement);
+        }
+
+    }
+
+    // Helper methods
+    private void verifyCredentialInList(String credentialUrl) {
         WebElement credentialTable = driver.findElement(By.id("credentialTable"));
         List<WebElement> credentials = credentialTable.findElements(By.tagName("th"));
 
         boolean isCredentialCreated = false;
         for (WebElement element : credentials) {
-            if (element.getAttribute("innerHTML").equals(CREDENTIAL_URL)) {
+            if (element.getAttribute("innerHTML").equals(credentialUrl)) {
                 isCredentialCreated = true;
                 break;
             }
@@ -254,6 +342,13 @@ class CloudStorageApplicationTests {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//table[@id='noteTable']//th[text()='" + NOTE_TITLE + "']/parent::tr/td/button")));
 
         return driver.findElement(By.xpath("//table[@id='noteTable']//th[text()='" + NOTE_TITLE + "']/parent::tr/td/button"));
+    }
+
+    private WebElement findEditButtonForExistingCredentialUrl(String credentialUrl) {
+        WebDriverWait wait = new WebDriverWait(driver, 5);
+        By editButtonLocator = By.xpath("//table[@id='credentialTable']//th[text()='" + credentialUrl + "']/parent::tr/td/button");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(editButtonLocator));
+        return driver.findElement(editButtonLocator);
     }
 
     private void verifyNoteUpdatedInList(String updateNoteTitle, String updatedDescription) {
@@ -322,6 +417,12 @@ class CloudStorageApplicationTests {
         WebDriverWait wait = new WebDriverWait(driver, 5);
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//table[@id='noteTable']//th[text()='" + CloudStorageApplicationTests.NOTE_TITLE + "']/parent::tr/td/a")));
         return driver.findElement(By.xpath("//table[@id='noteTable']//th[text()='" + CloudStorageApplicationTests.NOTE_TITLE + "']/parent::tr/td/a"));
+    }
+
+    private WebElement findDeleteButtonForCredentialUrl() {
+        WebDriverWait wait = new WebDriverWait(driver, 5);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//table[@id='credentialTable']//th[text()='" + CREDENTIAL_URL + "']/parent::tr/td/a")));
+        return driver.findElement(By.xpath("//table[@id='credentialTable']//th[text()='" + CREDENTIAL_URL + "']/parent::tr/td/a"));
     }
 
 

@@ -168,6 +168,7 @@
                         <tr th:each="credential: ${credentialList}">
                             <td>
                                 <button
+                                        name="edit-credential"
                                         th:data-credentialId="${credential.credentialId}"
                                         th:data-url="${credential.url}"
                                         th:data-username="${credential.username}"
@@ -180,7 +181,7 @@
                                         type="button"
                                         class="btn btn-success">Edit
                                 </button>
-                                <a th:href="@{/credentials/delete/{credentialId}(credentialId=${credential.credentialId})}"
+                                <a name="delete-btn" th:href="@{/credentials/delete/{credentialId}(credentialId=${credential.credentialId})}"
                                    class="btn btn-danger">Delete</a>
                             </td>
                             <th th:text="${credential.url}" scope="row"></th>
@@ -225,7 +226,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button id="credentialClose" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary" onclick="$('#credentialSubmit').click();">
+                                <button id="save-credential-btn" type="button" class="btn btn-primary" onclick="$('#credentialSubmit').click();">
                                     Save changes
                                 </button>
                             </div>
